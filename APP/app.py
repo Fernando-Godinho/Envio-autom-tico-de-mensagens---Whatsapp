@@ -10,8 +10,18 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from defs_TIP import *  # Certifique-se de que o módulo defs_TIP está acessível e correto
+def escrever(driver,campo,escrever):
+    # Localizar o elemento de entrada de texto por XPath
+    element = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, campo)))
+    # Limpar o campo de entrada, se necessário
+    element.clear()
+    # Enviar as teclas desejadas para o campo de entrada
+    element.send_keys(escrever)
 
+def click(driver,campo):
+        # Aguardar um pouco para que você possa ver o resultado
+        element = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, campo)))
+        element.click()
 st.set_page_config(page_title="Automação de Envio de Mensagens", page_icon="📲")
 
 # Inicializa valores padrão para o session_state
@@ -31,7 +41,19 @@ def conecta_whats(driver):
     st.image(qr_code_image, caption="QR Code para WhatsApp Web")
 
 def execute_process(sheet_df, attachment_file=None, mensagem=""):
-    driver = chama_driver_chrome()
+    def chama_driver_edge(headless=False):
+        # Configure as opções do Edge
+        options = Options()
+        if headless:
+            options.add_argument('--headless')
+            options.add_argument('--disable-gpu')  # Necessário para algumas versões do Windows
+            driver = webdriver.Edge(options=options)
+        else:
+            driver = webdriver.Edge()
+        
+        return driver
+
+    driver = chama_driver_edge()
     time.sleep(5)
     conecta_whats(driver)
     time.sleep(30)
