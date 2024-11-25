@@ -10,6 +10,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
+
 def escrever(driver,campo,escrever):
     # Localizar o elemento de entrada de texto por XPath
     element = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, campo)))
@@ -41,19 +45,19 @@ def conecta_whats(driver):
     st.image(qr_code_image, caption="QR Code para WhatsApp Web")
 
 def execute_process(sheet_df, attachment_file=None, mensagem=""):
-    def chama_driver_edge(headless=False):
-        # Configure as opções do Edge
+    def chama_driver_chrome():
         options = Options()
-        if headless:
-            options.add_argument('--headless')
-            options.add_argument('--disable-gpu')  # Necessário para algumas versões do Windows
-            driver = webdriver.Edge(options=options)
-        else:
-            driver = webdriver.Edge()
+        options.add_argument('--headless')  # Para rodar sem interface gráfica
+        options.add_argument('--no-sandbox')  # Necessário em alguns ambientes Linux
+        options.add_argument('--disable-dev-shm-usage')  # Evita problemas de memória compartilhada
         
+        # Inicializando o Chrome
+        service = ChromeService()
+        driver = webdriver.Chrome(service=service, options=options)
         return driver
 
-    driver = chama_driver_edge()
+
+    driver = chama_driver_chrome()
     time.sleep(5)
     conecta_whats(driver)
     time.sleep(30)
